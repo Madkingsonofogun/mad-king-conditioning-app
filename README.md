@@ -74,6 +74,20 @@ Open:
 
 [http://localhost:3000](http://localhost:3000)
 
+On Windows, you can also double-click `Start Mad King App.bat` and keep that window open while using the app.
+
+## Auto Update GitHub
+
+After GitHub sign-in is working on your computer, double-click:
+
+```text
+Auto Update GitHub.bat
+```
+
+Keep that window open while you work. It checks for changes every 60 seconds, creates a save point, and pushes the latest app code to GitHub.
+
+The auto-updater does not upload `.env`, database files, log files, uploaded client images, `node_modules`, or build output because those are ignored in `.gitignore`.
+
 ## Test Login Credentials
 
 Coach:
