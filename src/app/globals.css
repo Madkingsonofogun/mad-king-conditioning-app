@@ -160,7 +160,7 @@ button.primary {
 }
 
 .container {
-  width: min(1180px, 100%);
+  width: min(1360px, 100%);
   margin: 0 auto;
   padding: 22px clamp(16px, 4vw, 36px) 48px;
 }
@@ -486,6 +486,34 @@ th {
   background: #050308;
 }
 
+@media (max-width: 1100px) {
+  .app-frame {
+    grid-template-columns: 208px minmax(0, 1fr);
+  }
+
+  .sidebar {
+    padding: 14px 10px;
+  }
+
+  .sidebar-brand span {
+    font-size: 14px;
+  }
+
+  .side-nav a,
+  .logout-link {
+    justify-content: flex-start;
+    padding-inline: 10px;
+  }
+
+  .container {
+    padding-inline: 18px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
 @media (max-width: 760px) {
   .app-frame {
     display: block;
@@ -543,6 +571,10 @@ th {
 
   .two-col {
     grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 18px 14px 42px;
   }
 
   .page-title {

@@ -92,13 +92,14 @@ Use these settings:
 Set environment variables in Vercel:
 
 ```bash
-DATABASE_URL="file:./dev.db"
 AUTH_SECRET="replace-with-a-long-random-secret"
 ```
 
-For production with real shared data, replace SQLite with a hosted PostgreSQL database and set `DATABASE_URL` to the PostgreSQL connection string. The Prisma schema is organized so the datasource can be changed later.
+SQLite is for local development. For production with real shared data, use a hosted PostgreSQL database and set `DATABASE_URL` to the PostgreSQL connection string. When you move from SQLite to PostgreSQL, update the Prisma datasource provider in `prisma/schema.prisma`, run a migration, and deploy with the hosted database URL.
 
 Dynamic admin and client routes use runtime rendering because they depend on the logged-in user and live client data.
+
+The project runs `prisma generate` automatically after install so Vercel has the Prisma Client available during build.
 
 ## Install As App
 
