@@ -88,6 +88,7 @@ Use these settings:
 - Build command: `npm run build`
 - Install command: `npm install`
 - Output directory: leave blank
+- Node.js version: `20.x`
 
 Set environment variables in Vercel:
 
