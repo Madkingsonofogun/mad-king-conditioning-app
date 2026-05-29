@@ -190,6 +190,24 @@ export async function deleteCoachAction(coachId: string) {
   revalidatePath("/admin/coaches");
 }
 
+export async function updateCoachPasswordAction(coachId: string, formData: FormData) {
+  await requireAdmin();
+  const pin = asString(formData.get("pin"));
+  if (!/^\d{4,8}$/.test(pin)) {
+    redirect("/admin/coaches?error=pin");
+  }
+  const coach = await prisma.user.findUniqueOrThrow({ where: { id: coachId } });
+  if (!["ADMIN", "COACH"].includes(coach.role)) {
+    redirect("/admin/coaches?error=role");
+  }
+  await prisma.user.update({
+    where: { id: coachId },
+    data: { passwordHash: await hashPassword(pin) }
+  });
+  revalidatePath("/admin/coaches");
+  redirect("/admin/coaches?updated=pin");
+}
+
 export async function updateCoachProfileImageAction(coachId: string, formData: FormData) {
   await requireAdmin();
   const coach = await prisma.user.findUniqueOrThrow({ where: { id: coachId } });

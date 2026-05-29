@@ -1,8 +1,8 @@
-import { createCoachAction, deleteCoachAction, updateCoachProfileImageAction } from "@/app/actions";
+import { createCoachAction, deleteCoachAction, updateCoachPasswordAction, updateCoachProfileImageAction } from "@/app/actions";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 
-export default async function CoachesPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function CoachesPage({ searchParams }: { searchParams: { error?: string; updated?: string } }) {
   await requireAdmin();
   const coaches = await prisma.user.findMany({
     where: { role: { in: ["ADMIN", "COACH"] } },
@@ -10,7 +10,9 @@ export default async function CoachesPage({ searchParams }: { searchParams: { er
   });
 
   const message =
-    searchParams.error === "exists"
+    searchParams.updated === "pin"
+      ? "Coach PIN updated."
+      : searchParams.error === "exists"
       ? "That coach name or email already exists."
       : searchParams.error === "pin"
         ? "Coach name is required and PIN must be 4 to 8 numbers."
@@ -62,6 +64,7 @@ export default async function CoachesPage({ searchParams }: { searchParams: { er
                 <th>Role</th>
                 <th>Email</th>
                   <th>Login Style</th>
+                  <th>Change PIN</th>
                   <th>Control</th>
                 </tr>
               </thead>
@@ -85,6 +88,12 @@ export default async function CoachesPage({ searchParams }: { searchParams: { er
                     <td>{coach.role}</td>
                     <td>{coach.email}</td>
                     <td>{coach.role === "ADMIN" ? "PIN only" : "Coach name + PIN"}</td>
+                    <td>
+                      <form className="form" action={updateCoachPasswordAction.bind(null, coach.id)}>
+                        <input name="pin" inputMode="numeric" pattern="[0-9]{4,8}" required placeholder="New 4-8 digit PIN" />
+                        <button className="button primary" type="submit">Update PIN</button>
+                      </form>
+                    </td>
                     <td>
                       <form action={deleteCoachAction.bind(null, coach.id)}>
                         <button className="button" type="submit">Remove</button>
