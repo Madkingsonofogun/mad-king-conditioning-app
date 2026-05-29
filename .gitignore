@@ -8,3 +8,4 @@ node_modules
 coverage
 public/uploads
 .codex-git
+*.log
