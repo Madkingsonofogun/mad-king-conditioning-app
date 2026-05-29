@@ -23,6 +23,44 @@ export default async function CoachSchedulePage() {
       take: 100
     })
   ]);
+  const workoutSessions = Array.from(
+    workoutItems.reduce((sessions, item) => {
+      const sessionKey = [
+        item.clientId,
+        item.monthlyPlanId,
+        item.sessionDate?.toISOString() ?? "unscheduled",
+        item.week,
+        item.day
+      ].join(":");
+      const existing = sessions.get(sessionKey);
+      if (existing) {
+        existing.parts.push(`${item.sessionPart}: ${item.exerciseName}`);
+        return sessions;
+      }
+      sessions.set(sessionKey, {
+        id: item.id,
+        client: item.client,
+        sessionDate: item.sessionDate,
+        sessionLength: item.sessionLength,
+        sportFocus: item.sportFocus,
+        goal: item.goal,
+        week: item.week,
+        day: item.day,
+        parts: [`${item.sessionPart}: ${item.exerciseName}`]
+      });
+      return sessions;
+    }, new Map<string, {
+      id: string;
+      client: (typeof workoutItems)[number]["client"];
+      sessionDate: Date | null;
+      sessionLength: number;
+      sportFocus: string;
+      goal: string;
+      week: number;
+      day: number;
+      parts: string[];
+    }>())
+  ).map(([, groupedSession]) => groupedSession);
 
   return (
     <main className="container stack">
@@ -59,19 +97,19 @@ export default async function CoachSchedulePage() {
 
       <section className="card stack">
         <h2>Coaching Sessions</h2>
-        {workoutItems.length ? workoutItems.map((item) => (
-          <div className="card compact stack" key={item.id}>
+        {workoutSessions.length ? workoutSessions.map((item) => (
+          <div className="card compact stack" key={`${item.client.id}-${item.sessionDate?.toISOString()}-${item.week}-${item.day}`}>
             <div className="split">
               <span className="label active">Scheduled</span>
               <strong>{item.client.clientName}</strong>
               <span>{item.sessionDate?.toLocaleString()}</span>
-              <span className="muted">{item.sportFocus} - {item.sessionPart}</span>
+              <span className="muted">{item.sportFocus} - Week {item.week}, Day {item.day}</span>
             </div>
-            <p>{item.exerciseName}</p>
+            <p>{item.parts.slice(0, 4).join(" | ")}{item.parts.length > 4 ? ` + ${item.parts.length - 4} more` : ""}</p>
             <div className="split">
               <a className="button warn" href={googleCalendarUrl({
                 title: `${item.sportFocus} Coaching - ${item.client.clientName}`,
-                details: `${item.sessionPart}: ${item.exerciseName}`,
+                details: item.parts.join("\n"),
                 start: item.sessionDate ?? new Date(),
                 minutes: item.sessionLength || 60
               })} target="_blank" rel="noreferrer">Add To Google</a>
