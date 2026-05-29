@@ -1,0 +1,10 @@
+node_modules
+.next
+.env.local
+.env
+*.db
+*.db-journal
+.npm-cache
+coverage
+public/uploads
+.codex-git

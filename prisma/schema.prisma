@@ -1,0 +1,333 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  name         String
+  email        String         @unique
+  passwordHash String
+  role         String
+  profileImageUrl String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  clientProfile ClientProfile?
+  assignedClients ClientProfile[] @relation("AssignedCoach")
+  scheduledAssessments ScheduledAssessment[] @relation("ScheduledAssessmentCoach")
+  completedAssessments Assessment[] @relation("AssessmentCoach")
+  notifications Notification[]
+  sentMessages  ChatMessage[]    @relation("SentMessages")
+}
+
+model ClientProfile {
+  id                  String            @id @default(cuid())
+  userId              String?           @unique
+  assignedCoachId     String?
+  clientCode          String            @unique
+  clientName          String
+  phone               String?
+  email               String
+  profileImageUrl     String?
+  goal                String
+  sportFocus          String
+  trainingDaysPerWeek Int
+  sessionLength       Int
+  startDate           DateTime?
+  status              String            @default("Active")
+  notes               String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  user                User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  assignedCoach       User?             @relation("AssignedCoach", fields: [assignedCoachId], references: [id], onDelete: SetNull)
+  packages            Package[]
+  assessments         Assessment[]
+  scheduledAssessments ScheduledAssessment[]
+  weeklyCheckIns      WeeklyCheckIn[]
+  dailyCheckIns       DailyCheckIn[]
+  monthlyPlans        MonthlyPlan[]
+  monthlyPlanItems    MonthlyPlanItem[]
+  workoutSessions     WorkoutSession[]
+  coachNotes          CoachNote[]
+  notifications       Notification[]
+  chatMessages        ChatMessage[]
+  progressImages      ProgressImage[]
+}
+
+model ProgressImage {
+  id        String        @id @default(cuid())
+  clientId  String
+  imageUrl  String
+  caption   String?
+  imageDate DateTime      @default(now())
+  createdAt DateTime      @default(now())
+  client    ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String        @id @default(cuid())
+  userId    String?
+  clientId  String?
+  title     String
+  message   String
+  type      String
+  read      Boolean       @default(false)
+  href      String?
+  createdAt DateTime      @default(now())
+  user      User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client    ClientProfile? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id        String        @id @default(cuid())
+  clientId  String
+  senderId  String
+  message   String
+  createdAt DateTime      @default(now())
+  client    ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  sender    User          @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model ScheduledAssessment {
+  id            String        @id @default(cuid())
+  clientId      String
+  coachId       String?
+  scheduledDate DateTime
+  status        String        @default("Coach Proposed")
+  proposedBy    String        @default("Coach")
+  lockedAt      DateTime?
+  responseNotes String?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  client        ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  coach         User?         @relation("ScheduledAssessmentCoach", fields: [coachId], references: [id], onDelete: SetNull)
+}
+
+model Package {
+  id                  String        @id @default(cuid())
+  clientId            String
+  packageType         String
+  trainingDaysPerWeek Int
+  sessionsPurchased   Int
+  sessionsUsed        Int           @default(0)
+  sessionsRemaining   Int
+  amountPaid          Float?
+  paymentStatus       String        @default("Paid")
+  purchaseDate        DateTime      @default(now())
+  expirationDate      DateTime?
+  status              String        @default("Active")
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  client              ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Assessment {
+  id                   String        @id @default(cuid())
+  clientId             String
+  coachId              String?
+  assessmentDate       DateTime
+  assessmentType       String        @default("Initial")
+  chestPainDizziness   Boolean       @default(false)
+  recentSurgeryInjury  Boolean       @default(false)
+  painDailyTasks       Boolean       @default(false)
+  cannotStandFiveMin   Boolean       @default(false)
+  fallRisk             Boolean       @default(false)
+  jointLimitation      Boolean       @default(false)
+  squatScore           Int
+  hingeScore           Int           @default(0)
+  lungeScore           Int           @default(0)
+  pushUpScore          Int
+  pullScore            Int           @default(0)
+  coreScore            Int
+  balanceScore         Int           @default(0)
+  mobilityScore        Int
+  cardioScore          Int           @default(0)
+  strengthScore        Int           @default(0)
+  conditioningScore    Int
+  painLevel            Int
+  equipmentScore       Int           @default(0)
+  movementFocus        String?
+  restrictions         String?
+  injuryRiskNotes      String?
+  averageScore         Float
+  riskLevel            String
+  planLevel            String
+  clientLevel          String        @default("Beginner")
+  levelOverride        String?
+  nextReassessmentDate DateTime?
+  coachNotes           String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  client               ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  coach                User?         @relation("AssessmentCoach", fields: [coachId], references: [id], onDelete: SetNull)
+  generatedPlans       MonthlyPlan[]
+}
+
+model DailyCheckIn {
+  id             String        @id @default(cuid())
+  clientId       String
+  checkInDate    DateTime      @default(now())
+  energyScore    Int
+  sorenessScore  Int
+  injuredOrSick  Boolean       @default(false)
+  painArea       String?
+  feelsGood      Boolean       @default(false)
+  adjustment     String
+  adjustmentNote String
+  createdAt      DateTime      @default(now())
+  client         ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model WeeklyCheckIn {
+  id                       String        @id @default(cuid())
+  clientId                 String
+  weekStartDate            DateTime
+  energyScore              Int
+  painScore                Int
+  sorenessScore            Int
+  sleepScore               Int
+  stressScore              Int
+  workoutCompletionPercent Int
+  performanceScore         Int?
+  coachNotes               String?
+  checkInResult            String
+  planAdjustment           String
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+  client                   ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Exercise {
+  id             String            @id @default(cuid())
+  exerciseName   String
+  category       String
+  sportFocus     String
+  goal           String
+  difficulty     String
+  planLevel      String
+  sessionPart    String
+  equipment      String?
+  bodyArea       String?
+  lowImpact      Boolean           @default(false)
+  sets           String?
+  reps           String?
+  time           String?
+  rest           String?
+  description    String?
+  videoUrl       String?
+  progression    String?
+  regression     String?
+  coachingNotes  String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  planTemplates  PlanTemplate[]
+  monthlyItems   MonthlyPlanItem[]
+}
+
+model PlanTemplate {
+  id                  String    @id @default(cuid())
+  templateName        String
+  sportFocus          String
+  goal                String
+  planLevel           String
+  trainingDaysPerWeek Int
+  sessionLength       Int
+  week                Int
+  day                 Int
+  sessionPart         String
+  exerciseId          String?
+  exerciseName        String
+  sets                String?
+  reps                String?
+  time                String?
+  rest                String?
+  coachingNotes       String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  exercise            Exercise? @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
+}
+
+model MonthlyPlan {
+  id                        String            @id @default(cuid())
+  clientId                  String
+  month                     Int
+  year                      Int
+  planLevel                 String
+  planStatus                String            @default("Draft")
+  generatedDate             DateTime          @default(now())
+  generatedFromAssessmentId String?
+  generatedFromCheckInIds   String?
+  coachApproved             Boolean           @default(false)
+  coachApprovedDate         DateTime?
+  notes                     String?
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+  client                    ClientProfile     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  generatedFromAssessment   Assessment?       @relation(fields: [generatedFromAssessmentId], references: [id], onDelete: SetNull)
+  items                     MonthlyPlanItem[]
+  sessions                  WorkoutSession[]
+}
+
+model MonthlyPlanItem {
+  id            String        @id @default(cuid())
+  monthlyPlanId String
+  clientId      String
+  week          Int
+  day           Int
+  sessionDate   DateTime?
+  sessionLength Int
+  sportFocus    String
+  goal          String
+  planLevel     String
+  sessionPart   String
+  exerciseId    String?
+  exerciseName  String
+  sets          String?
+  reps          String?
+  time          String?
+  rest          String?
+  weight        String?
+  coachNotes    String?
+  completed     Boolean       @default(false)
+  completedDate DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  monthlyPlan   MonthlyPlan   @relation(fields: [monthlyPlanId], references: [id], onDelete: Cascade)
+  client        ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  exercise      Exercise?     @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
+}
+
+model WorkoutSession {
+  id               String        @id @default(cuid())
+  clientId         String
+  monthlyPlanId    String?
+  date             DateTime
+  week             Int
+  day              Int
+  workoutType      String
+  completed        Boolean       @default(false)
+  performanceScore Int?
+  painAfterWorkout Int?
+  coachNotes       String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  client           ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  monthlyPlan      MonthlyPlan?  @relation(fields: [monthlyPlanId], references: [id], onDelete: SetNull)
+}
+
+model CoachNote {
+  id              String        @id @default(cuid())
+  clientId        String
+  noteDate        DateTime
+  noteType        String
+  note            String
+  visibleToClient Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  client          ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
