@@ -1,10 +1,12 @@
-# Smart Coach
+# Mad King Conditioning
 
-Mobile-friendly coaching web app for boxing, kickboxing, fight conditioning, and personal training.
+Web-friendly coaching app for boxing, kickboxing, fight conditioning, and personal training.
 
 ## What Is Included
 
 - Next.js app with coach/admin and client areas
+- Responsive desktop, tablet, and mobile dashboard shell
+- PWA install support with manifest, service worker, and Mad King icon
 - Prisma data model backed by SQLite
 - Email/password authentication with hashed passwords
 - Role-based route protection for ADMIN/COACH/CLIENT
@@ -74,7 +76,33 @@ Open:
 
 [http://localhost:3000](http://localhost:3000)
 
-On Windows, you can also double-click `Start Mad King App.bat` and keep that window open while using the app.
+On Windows, you can also double-click `RUN APP - DOUBLE CLICK.bat` and keep that window open while using the app.
+
+## Deploy To Vercel
+
+Push the repo to GitHub, then create a Vercel project from that GitHub repo.
+
+Use these settings:
+
+- Framework preset: `Next.js`
+- Build command: `npm run build`
+- Install command: `npm install`
+- Output directory: leave blank
+
+Set environment variables in Vercel:
+
+```bash
+DATABASE_URL="file:./dev.db"
+AUTH_SECRET="replace-with-a-long-random-secret"
+```
+
+For production with real shared data, replace SQLite with a hosted PostgreSQL database and set `DATABASE_URL` to the PostgreSQL connection string. The Prisma schema is organized so the datasource can be changed later.
+
+Dynamic admin and client routes use runtime rendering because they depend on the logged-in user and live client data.
+
+## Install As App
+
+After deploying over HTTPS, open the site on a phone or desktop browser and choose **Add to Home Screen** or **Install App**. The app includes a web manifest, service worker, app icon, and standalone display mode.
 
 ## Test Login Credentials
 
@@ -100,7 +128,7 @@ Clients:
 npm test
 ```
 
-Current suite covers 31 checks for login hashing, package day logic, assessment levels, weekly check-in adjustments, monthly plan visibility, active-plan rules, session remaining updates, and client data isolation.
+Current suite covers 32 checks for login hashing, package day logic, assessment levels, weekly check-in adjustments, monthly plan visibility, active-plan rules, session remaining updates, and client data isolation.
 
 ## Monthly Plan Generator
 
