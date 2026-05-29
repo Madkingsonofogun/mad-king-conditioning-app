@@ -1,0 +1,40 @@
+{
+  "name": "Mad King Conditioning",
+  "short_name": "Mad King",
+  "description": "Coaching app for boxing, kickboxing, fight conditioning, and personal training.",
+  "start_url": "/login",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0711",
+  "theme_color": "#0b0711",
+  "categories": ["fitness", "sports", "health"],
+  "icons": [
+    {
+      "src": "/mad-king-conditioning.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/mad-king-conditioning.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Coach Dashboard",
+      "short_name": "Coach",
+      "url": "/admin/dashboard",
+      "icons": [{ "src": "/mad-king-conditioning.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Client Workouts",
+      "short_name": "Workouts",
+      "url": "/client/workouts",
+      "icons": [{ "src": "/mad-king-conditioning.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
